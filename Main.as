@@ -400,7 +400,7 @@ String4[] GetKnownValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(1416, "float", "WetnessValue01", Round(Dev::GetOffsetFloat(vis, 1416))));
     ret.InsertLast(String4(1492, "vec3", "Position", RoundVec3(Dev::GetOffsetVec3(vis, 1492), 3)));
     ret.InsertLast(String4(1504, "vec3", "WorldVel", RoundVec3(Dev::GetOffsetVec3(vis, 1504), 3)));
-    ret.InsertLast(String4(1516, "uint8", "Resets/Respawns?", Round(Dev::GetOffsetUint8(vis, 1516), 0)));  // articificially increases with respawns
+    ret.InsertLast(String4(1516, "uint8", "Resets/Respawns?", Round(Dev::GetOffsetUint8(vis, 1516), 0)));  // artificially increases with respawns
 
     // 121 start accelerating?
     // 409 race time?
