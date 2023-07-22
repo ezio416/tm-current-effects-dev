@@ -1,6 +1,6 @@
 /*
 c 2023-05-04
-m 2023-07-20
+m 2023-07-21
 */
 
 const string BLUE   = "\\$09D";
@@ -14,15 +14,24 @@ const string WHITE  = "\\$FFF";
 const string YELLOW = "\\$FF0";
 
 string title = Icons::Bug + " Current Effects (dev)";
-int start = 0;
-int end = 10000;
-int[] missingOffsets = {
+int offsetSkip = 4;
+int visStart = 0;
+int visEnd = 10000;
+int[] missingVisOffsets = {
     636, 644, 648, 712, 716, 720, 732, 736, 740, 748, 752, 756, 760, 764, 768, 772, 952, 956, 960, 964, 968, 972, 1020, 1024,
     1032, 1040, 1044, 1052, 1056, 1060, 1064, 1068, 1072, 1076, 1080, 1084, 1088, 1092, 1096, 1100, 1104, 1108, 1112, 1116,
     1120, 1124, 1128, 1132, 1136, 1140, 1148, 1152, 1156, 1160, 1164, 1188, 1192, 1200, 1204, 1208, 1212, 1216, 1220, 1224,
     1228, 1232, 1236, 1240, 1244, 1248, 1252, 1256, 1260, 1264, 1268, 1272, 1276, 1280, 1284, 1288, 1292, 1296, 1300, 1304,
     1308, 1312, 1316, 1320, 1324, 1328, 1332, 1336, 1340, 1344, 1348, 1352, 1356, 1360, 1364, 1368, 1372, 1376, 1380, 1384,
     1388, 1392, 1420, 1424, 1428, 1432, 1436, 1440, 1444, 1448, 1452, 1456, 1460, 1464, 1468, 1472, 1476, 1480, 1484, 1488
+};
+int playerStart = 0;
+int playerEnd = 10000;
+int[] missingPlayerOffsets = {
+    400, 404, 408, 412, 416, 432, 436, 440, 444, 448, 452, 456, 460, 464, 468, 472, 476, 480, 484, 488, 492, 496, 500, 504,
+    508, 512, 516, 520, 524, 528, 532, 536, 540, 872, 876, 880, 884, 888, 892, 896, 900, 916, 924, 3612, 3616, 3620, 3624, 3628,
+    3632, 3636, 3640, 3644, 3648, 3652, 3656, 3660, 3664, 3668, 3672, 3676, 3680, 3684, 3688, 3692, 3696, 3700, 3704, 3708, 3712,
+    3716, 3720, 3724, 3728, 3732, 3736, 3740, 3744, 3748, 3776, 3780, 3820, 3832, 3836, 3840, 3848, 3852
 };
 
 [Setting hidden]
@@ -56,10 +65,10 @@ void Render() {
                         // CSceneVehicleVisState@ state = vis.AsyncState;
 
                         if (UI::BeginTabItem(i + "_" + model.Id.GetName())) {
-                            start = UI::InputInt("offset start", start);
-                            end = UI::InputInt("offset end", end);
-                            if (start < 0) start = 0;
-                            if (start >= end) end = start + 1;
+                            visStart = UI::InputInt("vis offset start", visStart);
+                            visEnd = UI::InputInt("vis offset end", visEnd);
+                            if (visStart < 0) visStart = 0;
+                            if (visStart >= visEnd) visEnd = visStart + 1;
 
                             if (UI::BeginTable(i + "-offset-table", 2, UI::TableFlags::ScrollY)) {
                                 UI::TableSetupScrollFreeze(0, 1);
@@ -67,14 +76,14 @@ void Render() {
                                 UI::TableSetupColumn("value");
                                 UI::TableHeadersRow();
 
-                                UI::ListClipper clipper((end - start) / 4);
+                                UI::ListClipper clipper((visEnd - visStart) / offsetSkip);
                                 while (clipper.Step()) {
                                     for (int j = clipper.DisplayStart; j < clipper.DisplayEnd; j++) {
-                                        int offset = start + (j * 4);
+                                        int offset = visStart + (j * offsetSkip);
 
                                         UI::TableNextRow();
                                         UI::TableNextColumn();
-                                        if (missingOffsets.Find(offset) > -1 || offset > 1516 || (offset > 144 && offset < 620) || offset < 140)
+                                        if (missingVisOffsets.Find(offset) > -1 || offset > 1516 || (offset > 144 && offset < 620) || offset < 140)
                                             UI::Text(RED + offset);
                                         else
                                             UI::Text("" + offset);
@@ -108,7 +117,7 @@ void Render() {
             UI::EndTabItem();
         }
 
-        if (UI::BeginTabItem("CSceneVehicleVis values")) {
+        if (UI::BeginTabItem("vis values")) {
             try {
                 auto app = cast<CTrackMania@>(GetApp());
                 auto playground = cast<CSmArenaClient@>(app.CurrentPlayground);
@@ -128,7 +137,7 @@ void Render() {
                                 UI::TableSetupColumn("value");
                                 UI::TableHeadersRow();
 
-                                auto knownValues = GetKnownValues(vis);
+                                auto knownValues = GetKnownVisValues(vis);
 
                                 for (uint j = 0; j < knownValues.Length; j++) {
                                     auto kv = @knownValues[j];
@@ -149,11 +158,111 @@ void Render() {
             }
             UI::EndTabItem();
         }
+
+        if (UI::BeginTabItem("CSmPlayer offsets")) {
+            try {
+                auto app = cast<CTrackMania@>(GetApp());
+                auto playground = cast<CSmArenaClient@>(app.CurrentPlayground);
+                if (playground is null) throw("no-playground");
+                auto player = cast<CSmPlayer@>(playground.Arena.Players[0]);
+                // auto script = cast<CSmScriptPlayer@>(player.ScriptAPI);
+
+                playerStart = UI::InputInt("player offset start", playerStart);
+                playerEnd = UI::InputInt("player offset end", playerEnd);
+                if (playerStart < 0) playerStart = 0;
+                if (playerStart >= playerEnd) playerEnd = playerStart + 1;
+
+                if (UI::BeginTable("player-offset-table", 2, UI::TableFlags::ScrollY)) {
+                    UI::TableSetupScrollFreeze(0, 1);
+                    UI::TableSetupColumn("offset", UI::TableColumnFlags::WidthFixed, 80);
+                    UI::TableSetupColumn("value");
+                    UI::TableHeadersRow();
+
+                    UI::ListClipper clipper((playerEnd - playerStart) / offsetSkip);
+                    while (clipper.Step()) {
+                        for (int j = clipper.DisplayStart; j < clipper.DisplayEnd; j++) {
+                            int offset = visStart + (j * offsetSkip);
+
+                            UI::TableNextRow();
+                            UI::TableNextColumn();
+                            string offsetColor = "";
+                            if (
+                                missingPlayerOffsets.Find(offset) > -1 ||
+                                offset < 388 ||
+                                (offset > 544 && offset < 860) ||
+                                (offset > 944 && offset < 3144) ||
+                                (offset > 3144 && offset < 3588) ||
+                                (offset > 3888 && offset < 4116) ||
+                                offset > 4124
+                            ) offsetColor = RED;
+                            UI::Text(offsetColor + offset);
+
+                            UI::TableNextColumn();
+                            try {
+                                // UI::Text(Round(Dev::GetOffsetInt8(player, offset), 0));
+                                // UI::Text(Round(Dev::GetOffsetUint8(player, offset), 0));
+
+                                // UI::Text(Round(Dev::GetOffsetInt16(player, offset), 0));
+                                // UI::Text(Round(Dev::GetOffsetUint16(player, offset), 0));
+
+                                // UI::Text(Round(Dev::GetOffsetInt32(player, offset), 0));
+                                // UI::Text(Round(Dev::GetOffsetUint32(player, offset), 0));
+                                UI::Text(Round(Dev::GetOffsetFloat(player, offset)));
+
+                                // UI::Text(Round(Dev::GetOffsetInt64(player, offset), 0));
+                                // UI::Text(Round(Dev::GetOffsetUint64(player, offset), 0));
+                                // UI::Text(Round(Dev::GetOffsetDouble(player, offset)));
+
+                                // UI::Text(RoundVec3(Dev::GetOffsetVec3(player, offset)));
+                            } catch {
+                                UI::Text(RED + getExceptionInfo());
+                            }
+                        }
+                    }
+                    UI::EndTable();
+                }
+            } catch {
+                UI::Text("oopsie: " + getExceptionInfo());
+            }
+            UI::EndTabItem();
+        }
+
+        if (UI::BeginTabItem("player values")) {
+            try {
+                auto app = cast<CTrackMania@>(GetApp());
+                auto playground = cast<CSmArenaClient@>(app.CurrentPlayground);
+                if (playground is null) throw("no-playground");
+                auto player = cast<CSmPlayer@>(playground.Arena.Players[0]);
+
+                if (UI::BeginTable("player-value-table", 4, UI::TableFlags::ScrollY)) {
+                    UI::TableSetupColumn("offset(s)", UI::TableColumnFlags::WidthFixed, 120);
+                    UI::TableSetupColumn("type", UI::TableColumnFlags::WidthFixed, 80);
+                    UI::TableSetupColumn("variable");
+                    UI::TableSetupColumn("value");
+                    UI::TableHeadersRow();
+
+                    auto knownValues = GetKnownPlayerValues(player);
+
+                    for (uint j = 0; j < knownValues.Length; j++) {
+                        auto kv = @knownValues[j];
+                        UI::TableNextRow();
+                        UI::TableNextColumn(); UI::Text(kv.offset);
+                        UI::TableNextColumn(); UI::Text(kv.type);
+                        UI::TableNextColumn(); UI::Text(kv.name);
+                        UI::TableNextColumn(); UI::Text(kv.value);
+                    }
+                    UI::EndTable();
+                }
+            } catch {
+                UI::Text("oopsie: " + getExceptionInfo());
+            }
+            UI::EndTabItem();
+        }
     UI::EndTabBar();
     UI::End();
 }
 
-string ContactState1Name(uint contactId) {
+string ContactState1Name(int contactId) {
     switch (contactId) {
         case 0:  return "air";
         case 8:  return "ground";
@@ -165,7 +274,7 @@ string ContactState1Name(uint contactId) {
     }
 }
 
-string ContactState2Name(uint contactId) {
+string ContactState2Name(int contactId) {
     switch (contactId) {
         case -64: return "air";
         case -63: return "falling";
@@ -264,7 +373,7 @@ class String4 {
     }
 }
 
-String4[] GetKnownValues(CSceneVehicleVis@ vis) {
+String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     String4[] ret;
     if (vis is null) return ret;
 
@@ -408,6 +517,76 @@ String4[] GetKnownValues(CSceneVehicleVis@ vis) {
     // 1562 wheels burning?
     // 1690,1738 is braking?
     // 1820 total forward movement holding gas?
+
+    return ret;
+}
+
+String4[] GetKnownPlayerValues(CSmPlayer@ player) {
+    String4[] ret;
+    if (player is null) return ret;
+
+    ret.InsertLast(String4(388,  "float",  "InputSteerDirection",        Round(Dev::GetOffsetFloat   (player, 388),  0)));
+    ret.InsertLast(String4(392,  "float",  "InputGasPedal",              Round(Dev::GetOffsetFloat   (player, 392),  0)));
+    ret.InsertLast(String4(396,  "float",  "InputBrakePedal",            Round(Dev::GetOffsetFloat   (player, 396),  0)));
+    ret.InsertLast(String4(420,  "float",  "InputSteerDirection",        Round(Dev::GetOffsetFloat   (player, 420),  0)));
+    ret.InsertLast(String4(424,  "float",  "InputGasPedal",              Round(Dev::GetOffsetFloat   (player, 424),  0)));
+    ret.InsertLast(String4(428,  "float",  "InputBrakePedal",            Round(Dev::GetOffsetFloat   (player, 428),  0)));
+    ret.InsertLast(String4(468,  "int32",  "SpawnIndex",                 Round(Dev::GetOffsetInt32   (player, 468),  0)));
+    ret.InsertLast(String4(544,  "int32",  "EndTime",                    Round(Dev::GetOffsetInt32   (player, 544),  0)));
+    ret.InsertLast(String4(860,  "float",  "GetLinearHue",               Round(Dev::GetOffsetFloat   (player, 860),  6)));
+    ret.InsertLast(String4(864,  "uint8",  "DossardNumber1",             Round(Dev::GetOffsetUint8   (player, 864),  0)));
+    ret.InsertLast(String4(865,  "uint8",  "DossardNumber2",             Round(Dev::GetOffsetUint8   (player, 865),  0)));
+    ret.InsertLast(String4(866,  "uint8",  "DossardTrigram1",            Round(Dev::GetOffsetUint8   (player, 866),  0)));
+    ret.InsertLast(String4(867,  "uint8",  "DossardTrigram2",            Round(Dev::GetOffsetUint8   (player, 867),  0)));
+    ret.InsertLast(String4(868,  "uint8",  "DossardTrigram3",            Round(Dev::GetOffsetUint8   (player, 868),  0)));
+    ret.InsertLast(String4(904,  "uint32", "ArmorMax",                   Round(Dev::GetOffsetUint32  (player, 904),  0)));
+    ret.InsertLast(String4(908,  "uint32", "ArmorGain",                  Round(Dev::GetOffsetUint32  (player, 908),  0)));
+    ret.InsertLast(String4(912,  "float",  "ArmorPower",                 Round(Dev::GetOffsetFloat   (player, 912),  3)));
+    ret.InsertLast(String4(920,  "uint32", "ArmorReplenishGain",         Round(Dev::GetOffsetUint32  (player, 920),  0)));
+    ret.InsertLast(String4(928,  "float",  "StaminaMax",                 Round(Dev::GetOffsetFloat   (player, 928),  3)));
+    ret.InsertLast(String4(932,  "float",  "StaminaGain",                Round(Dev::GetOffsetFloat   (player, 932),  3)));
+    ret.InsertLast(String4(936,  "float",  "StaminaPower",               Round(Dev::GetOffsetFloat   (player, 936),  3)));
+    ret.InsertLast(String4(940,  "float",  "SpeedPower",                 Round(Dev::GetOffsetFloat   (player, 940),  3)));
+    ret.InsertLast(String4(944,  "float",  "JumpPower",                  Round(Dev::GetOffsetFloat   (player, 944),  3)));
+    ret.InsertLast(String4(3144, "uint32", "StartTime",                  Round(Dev::GetOffsetUint32  (player, 3144), 0)));
+    ret.InsertLast(String4(3588, "vec3",   "Position",                   RoundVec3(Dev::GetOffsetVec3(player, 3588), 3)));
+    ret.InsertLast(String4(3600, "vec3",   "Velocity",                   RoundVec3(Dev::GetOffsetVec3(player, 3600), 3)));
+    ret.InsertLast(String4(3752, "vec3",   "Position",                   RoundVec3(Dev::GetOffsetVec3(player, 3752), 3)));
+    ret.InsertLast(String4(3764, "vec3",   "AimDirection",               RoundVec3(Dev::GetOffsetVec3(player, 3764), 3)));
+    ret.InsertLast(String4(3784, "float",  "Upwardness",                 Round(Dev::GetOffsetFloat   (player, 3784), 3)));
+    ret.InsertLast(String4(3788, "float",  "FrontSpeed",                 Round(Dev::GetOffsetFloat   (player, 3788), 3)));
+    ret.InsertLast(String4(3792, "uint32", "DisplaySpeed",               Round(Dev::GetOffsetUint32  (player, 3792), 0)));
+    ret.InsertLast(String4(3796, "float",  "InputSteer",                 Round(Dev::GetOffsetFloat   (player, 3796), 1)));
+    ret.InsertLast(String4(3800, "float",  "InputGasPedal",              Round(Dev::GetOffsetFloat   (player, 3800), 0)));
+    ret.InsertLast(String4(3804, "uint32", "InputIsBraking",             Round(Dev::GetOffsetUint32  (player, 3804), 0)));
+    ret.InsertLast(String4(3808, "float",  "EngineRPM",                  Round(Dev::GetOffsetFloat   (player, 3808), 0)));
+    ret.InsertLast(String4(3812, "uint32", "EngineCurGear",              Round(Dev::GetOffsetUint32  (player, 3812), 0)));
+    ret.InsertLast(String4(3816, "float",  "EngineTurboRatio",           Round(Dev::GetOffsetFloat   (player, 3816), 6)));
+    ret.InsertLast(String4(3824, "uint32", "WheelsContactCount",         Round(Dev::GetOffsetUint32  (player, 3824), 0)));
+    ret.InsertLast(String4(3828, "uint32", "WheelsSkiddingCount",        Round(Dev::GetOffsetUint32  (player, 3828), 0)));
+    ret.InsertLast(String4(3844, "uint32", "FlyingDuration",             Round(Dev::GetOffsetUint32  (player, 3844), 0)));
+    ret.InsertLast(String4(3856, "uint32", "SkiddingDuration",           Round(Dev::GetOffsetUint32  (player, 3856), 0)));
+    ret.InsertLast(String4(3860, "uint32", "HandicapNoGasDuration",      Round(Dev::GetOffsetUint32  (player, 3860), 0)));
+    ret.InsertLast(String4(3864, "uint32", "HandicapForceGasDuration",   Round(Dev::GetOffsetUint32  (player, 3864), 0)));
+    ret.InsertLast(String4(3868, "uint32", "HandicapNoBrakesDuration",   Round(Dev::GetOffsetUint32  (player, 3868), 0)));
+    ret.InsertLast(String4(3872, "uint32", "HandicapNoSteeringDuration", Round(Dev::GetOffsetUint32  (player, 3872), 0)));
+    ret.InsertLast(String4(3876, "uint32", "HandicapNoGripDuration",     Round(Dev::GetOffsetUint32  (player, 3876), 0)));
+    ret.InsertLast(String4(3880, "float",  "SkiddingDistance",           Round(Dev::GetOffsetFloat   (player, 3880), 3)));
+    ret.InsertLast(String4(3884, "float",  "FlyingDistance",             Round(Dev::GetOffsetFloat   (player, 3884), 3)));
+    ret.InsertLast(String4(3888, "float",  "Distance",                   Round(Dev::GetOffsetFloat   (player, 3888), 3)));
+    ret.InsertLast(String4(4116, "float",  "InputSteerDirection",        Round(Dev::GetOffsetFloat   (player, 4116), 0)));
+    ret.InsertLast(String4(4120, "float",  "InputGasPedal",              Round(Dev::GetOffsetFloat   (player, 4120), 0)));
+    ret.InsertLast(String4(4124, "float",  "InputBrakePedal",            Round(Dev::GetOffsetFloat   (player, 4124), 0)));
+    // ret.InsertLast(String4(, , , ));
+    // ret.InsertLast(String4(, , , ));
+    // ret.InsertLast(String4(, , , ));
+    // ret.InsertLast(String4(, , , ));
+    // ret.InsertLast(String4(, , , ));
+
+    /// 384, 416, 4112 key press?
+    // 404, 436, 4132 mouse pos y?
+    // 3572 cumulative rotation?
+    // 3776, 3780 rotation radians?
 
     return ret;
 }
