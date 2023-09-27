@@ -1,6 +1,6 @@
 /*
 c 2023-05-04
-m 2023-07-21
+m 2023-08-02
 */
 
 const string BLUE   = "\\$09D";
@@ -159,6 +159,49 @@ void Render() {
             UI::EndTabItem();
         }
 
+        if (UI::BeginTabItem("my vis")) {
+            try {
+                auto app = cast<CTrackMania@>(GetApp());
+                auto playground = cast<CSmArenaClient@>(app.CurrentPlayground);
+                if (playground is null) throw("no-playground");
+
+                auto scene = cast<ISceneVis@>(app.GameScene);
+                if (scene is null) throw("no-scene");
+
+                CSceneVehicleVis@ vis;
+                auto player = cast<CSmPlayer@>(playground.GameTerminals[0].GUIPlayer);
+                if (player !is null) {
+                    @vis = VehicleState::GetVis(scene, player);
+                } else {
+                    @vis = VehicleState::GetSingularVis(scene);
+                }
+                if (vis is null) throw("no-vis");
+
+                if (UI::BeginTable("value-table", 4, UI::TableFlags::ScrollY)) {
+                    UI::TableSetupColumn("offset(s)", UI::TableColumnFlags::WidthFixed, 120);
+                    UI::TableSetupColumn("type", UI::TableColumnFlags::WidthFixed, 80);
+                    UI::TableSetupColumn("variable");
+                    UI::TableSetupColumn("value");
+                    UI::TableHeadersRow();
+
+                    auto knownValues = GetKnownVisValues(vis);
+
+                    for (uint j = 0; j < knownValues.Length; j++) {
+                        auto kv = @knownValues[j];
+                        UI::TableNextRow();
+                        UI::TableNextColumn(); UI::Text(kv.offset);
+                        UI::TableNextColumn(); UI::Text(kv.type);
+                        UI::TableNextColumn(); UI::Text(kv.name);
+                        UI::TableNextColumn(); UI::Text(kv.value);
+                    }
+                    UI::EndTable();
+                }
+            } catch {
+                UI::Text("oopsie: " + getExceptionInfo());
+            }
+            UI::EndTabItem();
+        }
+
         if (UI::BeginTabItem("CSmPlayer offsets")) {
             try {
                 auto app = cast<CTrackMania@>(GetApp());
@@ -303,14 +346,16 @@ string EffectName(int effectId) {
         case 13: return "fragile";
         case 14:
         case 19: return "red reactor";
+        case 15: return "bouncy";
         case 16: return "no brakes";
         case 17: return "cruise control";
+        case 20: return "null";
         default: return "unknown";
     }
 }
 
-string GroundWaterName(int GroundWaterId) {
-    switch (GroundWaterId) {
+string FallingName(int FallingId) {
+    switch (FallingId) {
         case 0: return "air";
         case 2: return "sinking";
         case 4: return "ground";
@@ -321,24 +366,24 @@ string GroundWaterName(int GroundWaterId) {
 
 string MaterialName(int materialId) {
     switch (materialId) {
-        case 0:  return "air/water/road";
-        case 2:  return "penalty";
-        case 3:  return "blue ice";
-        case 4:  return "deco";
+        case 0:  return "air/water/road";  // Concrete
+        case 2:  return "penalty";  // Grass
+        case 3:  return "blue ice";  // Ice
+        case 4:  return "deco";  // Metal
         case 5:  return "sand";
         case 6:  return "dirt";
-        case 9:  return "road border";
-        case 16: return "road";
+        case 9:  return "road border";  // Rubber
         case 14: return "wood";
+        case 16: return "road";  // Asphalt
         case 21: return "snow";
-        case 22: return "fabric";
-        case 32: return "signage";
-        case 55: return "blue ice (alt)";
-        case 62: return "magnet";
-        case 64: return "fast magnet";
-        case 74: return "ice";
-        case 75: return "sausage";
-        case 76: return "grass";
+        case 22: return "fabric";  // ResonantMetal
+        case 32: return "signage";  // MetalTrans
+        case 55: return "blue ice (alt)";  // TechMagnetic
+        case 62: return "magnet";  // TechSuperMagnetic
+        case 64: return "fast magnet";  // TechMagneticAccel
+        case 74: return "ice";  // RoadIce
+        case 75: return "sausage";  //RoadSynthetic
+        case 76: return "grass";  // Green
         case 77: return "plastic";
         default: return "unknown";
     }
@@ -378,26 +423,32 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     if (vis is null) return ret;
 
     ret.InsertLast(String4(140, "float", "GetLinearHue", Round(Dev::GetOffsetFloat(vis, 140))));
+    // state stars at 608?
     ret.InsertLast(String4(620, "uint32", "TimeInMap?", Round(Dev::GetOffsetUint32(vis, 620), 0)));
     ret.InsertLast(String4(624, "float", "InputSteer", Round(Dev::GetOffsetFloat(vis, 624), 1)));
     ret.InsertLast(String4(628, "float", "InputGasPedal", Round(Dev::GetOffsetFloat(vis, 628), 0)));
     ret.InsertLast(String4(632, "float", "InputBrakePedal", Round(Dev::GetOffsetFloat(vis, 632), 0)));
     ret.InsertLast(String4(640, "int32", "InputIsBraking", Round(Dev::GetOffsetInt32(vis, 640), 0)));
+
+    vec3 x = Dev::GetOffsetVec3(vis, 652);
+    vec3 y = Dev::GetOffsetVec3(vis, 664);
+    vec3 z = Dev::GetOffsetVec3(vis, 676);
     vec3 LeftDirection;
-    LeftDirection.x = Dev::GetOffsetFloat(vis, 652);
-    LeftDirection.y = Dev::GetOffsetFloat(vis, 664);
-    LeftDirection.z = Dev::GetOffsetFloat(vis, 676);
+    LeftDirection.x = x.x;
+    LeftDirection.y = y.x;
+    LeftDirection.z = z.x;
     ret.InsertLast(String4("652,664,676", "vec3", "LeftDirection", RoundVec3(LeftDirection, 3)));
     vec3 WorldCarUp;
-    WorldCarUp.x = Dev::GetOffsetFloat(vis, 656);
-    WorldCarUp.y = Dev::GetOffsetFloat(vis, 668);
-    WorldCarUp.z = Dev::GetOffsetFloat(vis, 680);
+    WorldCarUp.x = x.y;
+    WorldCarUp.y = y.y;
+    WorldCarUp.z = z.y;
     ret.InsertLast(String4("656,668,680", "vec3", "WorldCarUp", RoundVec3(WorldCarUp, 3)));
     vec3 AimDirection;
-    AimDirection.x = Dev::GetOffsetFloat(vis, 660);
-    AimDirection.y = Dev::GetOffsetFloat(vis, 672);
-    AimDirection.z = Dev::GetOffsetFloat(vis, 684);
+    AimDirection.x = x.z;
+    AimDirection.y = y.z;
+    AimDirection.z = z.z;
     ret.InsertLast(String4("660,672,684", "vec3", "AimDirection", RoundVec3(AimDirection, 3)));
+
     ret.InsertLast(String4(688, "vec3", "Position", RoundVec3(Dev::GetOffsetVec3(vis, 688), 3)));
     ret.InsertLast(String4(700, "vec3", "WorldVel", RoundVec3(Dev::GetOffsetVec3(vis, 700), 3)));
     ret.InsertLast(String4(724, "float", "FrontSpeed", Round(Dev::GetOffsetFloat(vis, 724), 3)));
@@ -406,7 +457,7 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(744, "int8", "ContactState1", Round(ContactState1, 0) + " " + ContactState1Name(ContactState1)));
     int ContactState2 = Dev::GetOffsetInt8(vis, 746);
     ret.InsertLast(String4(746, "int8", "ContactState2", Round(ContactState2, 0) + " " + ContactState2Name(ContactState2)));
-    ret.InsertLast(String4(747, "int8", "IsTurbo", Round(Dev::GetOffsetInt8(vis, 747), 0)));
+    ret.InsertLast(String4(747, "int8", "IsTurbo", Round(Dev::GetOffsetInt8(vis, 747), 0)));  // 0-1 for self, 4-5 for replays
 
     ret.InsertLast(String4(776, "float", "FLDamperLen", Round(Dev::GetOffsetFloat(vis, 776), 4)));
     ret.InsertLast(String4(780, "float", "FLWheelRot", Round(Dev::GetOffsetFloat(vis, 780))));
@@ -421,8 +472,8 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(804, "float", "FLIcing01", Round(Dev::GetOffsetFloat(vis, 804))));
     ret.InsertLast(String4(808, "float", "FLTireWear01", Round(Dev::GetOffsetFloat(vis, 808), 3)));
     ret.InsertLast(String4(812, "float", "FLBreakNormedCoef", Round(Dev::GetOffsetFloat(vis, 812))));
-    int FLGroundWater = Dev::GetOffsetInt8(vis, 816);
-    ret.InsertLast(String4(816, "int8", "FLGroundWater", Round(FLGroundWater, 0) + " " + GroundWaterName(FLGroundWater)));
+    int FLFalling = Dev::GetOffsetInt8(vis, 816);
+    ret.InsertLast(String4(816, "int8", "FLFalling", Round(FLFalling, 0) + " " + FallingName(FLFalling)));
 
     ret.InsertLast(String4(820, "float", "FRDamperLen", Round(Dev::GetOffsetFloat(vis, 820), 4)));
     ret.InsertLast(String4(824, "float", "FRWheelRot", Round(Dev::GetOffsetFloat(vis, 824))));
@@ -437,8 +488,8 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(848, "float", "FRIcing01", Round(Dev::GetOffsetFloat(vis, 848))));
     ret.InsertLast(String4(852, "float", "FRTireWear01", Round(Dev::GetOffsetFloat(vis, 852), 3)));
     ret.InsertLast(String4(856, "float", "FRBreakNormedCoef", Round(Dev::GetOffsetFloat(vis, 856))));
-    int FRGroundWater = Dev::GetOffsetInt8(vis, 860);
-    ret.InsertLast(String4(860, "int8", "FRGroundWater", Round(FRGroundWater, 0) + " " + GroundWaterName(FRGroundWater)));
+    int FRFalling = Dev::GetOffsetInt8(vis, 860);
+    ret.InsertLast(String4(860, "int8", "FRFalling", Round(FRFalling, 0) + " " + FallingName(FRFalling)));
 
     ret.InsertLast(String4(864, "float", "RRDamperLen", Round(Dev::GetOffsetFloat(vis, 864), 4)));
     ret.InsertLast(String4(868, "float", "RRWheelRot", Round(Dev::GetOffsetFloat(vis, 868))));
@@ -453,8 +504,8 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(892, "float", "RRIcing01", Round(Dev::GetOffsetFloat(vis, 892))));
     ret.InsertLast(String4(896, "float", "RRTireWear01", Round(Dev::GetOffsetFloat(vis, 896), 3)));
     ret.InsertLast(String4(900, "float", "RRBreakNormedCoef", Round(Dev::GetOffsetFloat(vis, 900))));
-    int RRGroundWater = Dev::GetOffsetInt8(vis, 904);
-    ret.InsertLast(String4(904, "int8", "RRGroundWater", Round(RRGroundWater, 0) + " " + GroundWaterName(RRGroundWater)));
+    int RRFalling = Dev::GetOffsetInt8(vis, 904);
+    ret.InsertLast(String4(904, "int8", "RRFalling", Round(RRFalling, 0) + " " + FallingName(RRFalling)));
 
     ret.InsertLast(String4(908, "float", "RLDamperLen", Round(Dev::GetOffsetFloat(vis, 908), 4)));
     ret.InsertLast(String4(912, "float", "RLWheelRot", Round(Dev::GetOffsetFloat(vis, 912))));
@@ -469,17 +520,17 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(936, "float", "RLIcing01", Round(Dev::GetOffsetFloat(vis, 936))));
     ret.InsertLast(String4(940, "float", "RLTireWear01", Round(Dev::GetOffsetFloat(vis, 940), 3)));
     ret.InsertLast(String4(944, "float", "RLBreakNormedCoef", Round(Dev::GetOffsetFloat(vis, 944))));
-    int RLGroundWater = Dev::GetOffsetInt8(vis, 948);
-    ret.InsertLast(String4(948, "int8", "RLGroundWater", Round(RLGroundWater, 0) + " " + GroundWaterName(RLGroundWater)));
+    int RLFalling = Dev::GetOffsetInt8(vis, 948);
+    ret.InsertLast(String4(948, "int8", "RLFalling", Round(RLFalling, 0) + " " + FallingName(RLFalling)));
 
     ret.InsertLast(String4(976, "uint32", "LastTurboLevel", Round(Dev::GetOffsetUint32(vis, 976), 0)));
-    ret.InsertLast(String4(980, "int32", "ReactorLevel", Round(Dev::GetOffsetInt32(vis, 980), 0)));
-    ret.InsertLast(String4(984, "int32", "ReactorType", Round(Dev::GetOffsetInt32(vis, 984), 0)));
-    ret.InsertLast(String4(988, "float", "ReactorFinalCountdown", Round(Dev::GetOffsetFloat(vis, 988), 1)));
+    ret.InsertLast(String4(980, "int32", "ReactorBoostLvl", Round(Dev::GetOffsetInt32(vis, 980), 0)));
+    ret.InsertLast(String4(984, "int32", "ReactorBoostType", Round(Dev::GetOffsetInt32(vis, 984), 0)));
+    ret.InsertLast(String4(988, "float", "ReactorFinalTimer", Round(Dev::GetOffsetFloat(vis, 988), 1)));
     ret.InsertLast(String4(992, "vec3", "ReactorAirControl", RoundVec3(Dev::GetOffsetVec3(vis, 992), 0)));
     ret.InsertLast(String4(1004, "vec3", "WorldCarUp", RoundVec3(Dev::GetOffsetVec3(vis, 1004), 3)));
     ret.InsertLast(String4(1016, "float", "EngineRPM", Round(Dev::GetOffsetFloat(vis, 1016), 0)));
-    ret.InsertLast(String4(1028, "int32", "EngineCurGear", Round(Dev::GetOffsetInt32(vis, 1028), 0)));
+    ret.InsertLast(String4(1028, "int32", "CurGear", Round(Dev::GetOffsetInt32(vis, 1028), 0)));
     ret.InsertLast(String4(1036, "float", "TurboTime", Round(Dev::GetOffsetFloat(vis, 1036), 2)));
     ret.InsertLast(String4(1044, "uint32", "RaceStartTime", Round(Dev::GetOffsetUint32(vis, 1044), 0)));
 
