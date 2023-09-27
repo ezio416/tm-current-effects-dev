@@ -1,8 +1,8 @@
 [meta]
-name     = "Current Effects (dev)"
-author   = "Ezio414"
+name = "Current Effects (dev)"
+author = "Ezio"
 category = "Overlay"
-version  = "0.0.0"
+version = "0.1.0"
 
 [script]
 dependencies = [ "VehicleState" ]
