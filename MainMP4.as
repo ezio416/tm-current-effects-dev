@@ -8,12 +8,12 @@ m 2023-10-22
 int visStart = 0;
 int visEnd = 10000;
 int[] knownVisOffsets = {
-    0000, 1216, 1220, 1228, 1248, 1252, 1256, 1260, 1264, 1268, 1272, 1276, 1280, 1284, 1288, 1292, 1296, 1320, 1324, 1336,
+    0000, 1216, 1220, 1228, 1248, 1252, 1256, 1260, 1264, 1268, 1272, 1276, 1280, 1284, 1288, 1292, 1296, 1300, 1304, 1320, 1324, 1336,
     1340, 1344, 1348, 1352, 1356, 1360, 1364, 1372,  // FL
     1376, 1380, 1384, 1388, 1392, 1396, 1400, 1408,  // FR
     1412, 1416, 1420, 1424, 1428, 1432, 1436, 1444,  // RR
     1448, 1452, 1456, 1460, 1464, 1468, 1472, 1480,  // RL
-    1512, 1524, 1584, 2084, 2096, 2108
+    1512, 1524, 1584, 1936, 1940, 1944, 1948, 1952, 1956, 2084, 2096, 2108
 };
 
 void RenderMP4() {
@@ -68,10 +68,10 @@ void RenderMP4() {
                                             // UI::Text(Round(Dev::GetOffsetInt16(vis, offset)));
                                             // UI::Text(Round(Dev::GetOffsetUint16(vis, offset)));
                                             // UI::Text(Round(Dev::GetOffsetInt32(vis, offset)));
-                                            UI::Text(Round(Dev::GetOffsetUint32(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetUint32(vis, offset)));
                                             // UI::Text(Round(Dev::GetOffsetInt64(vis, offset)));
                                             // UI::Text(Round(Dev::GetOffsetUint64(vis, offset)));
-                                            // UI::Text(Round(Dev::GetOffsetFloat(vis, offset)));
+                                            UI::Text(Round(Dev::GetOffsetFloat(vis, offset)));
                                             // UI::Text(RoundV(Dev::GetOffsetVec3(vis, offset)));
                                         } catch {
                                             UI::Text(RED + getExceptionInfo());
@@ -237,6 +237,8 @@ String4[] GetKnownVisValues(CMwNod@ vis) {
     ret.InsertLast(String4(1512, "float", "RPM",                      Round(Dev::GetOffsetFloat (vis, 1512), 0)));
     ret.InsertLast(String4(1524, "uint",  "CurGear",                  Round(Dev::GetOffsetUint32(vis, 1524))));
     ret.InsertLast(String4(1584, "uint",  "ActiveEffects",            Round(Dev::GetOffsetUint32(vis, 1584))));
+    ret.InsertLast(String4(1936, "vec3",  "Position",                 Round(Dev::GetOffsetVec3  (vis, 1936))));
+    ret.InsertLast(String4(1948, "vec3",  "WorldVel",                 Round(Dev::GetOffsetVec3  (vis, 1948))));
     ret.InsertLast(String4(2084, "bool",  "TurboActive",              Round(Dev::GetOffsetFloat (vis, 2084) == 1)));
     ret.InsertLast(String4(2096, "float", "TurboPercent",             Round(Dev::GetOffsetFloat (vis, 2096))));
     ret.InsertLast(String4(2108, "float", "GearPercent",              Round(Dev::GetOffsetFloat (vis, 2108))));
