@@ -63,16 +63,16 @@ void RenderMP4() {
 
                                         UI::TableNextColumn();
                                         try {
-                                            // UI::Text(Round(Dev::GetOffsetInt8(vis, offset), 0));
-                                            // UI::Text(Round(Dev::GetOffsetUint8(vis, offset), 0));
-                                            // UI::Text(Round(Dev::GetOffsetInt16(vis, offset), 0));
-                                            // UI::Text(Round(Dev::GetOffsetUint16(vis, offset), 0));
-                                            // UI::Text(Round(Dev::GetOffsetInt32(vis, offset), 0));
-                                            UI::Text(Round(Dev::GetOffsetUint32(vis, offset), 0));
-                                            // UI::Text(Round(Dev::GetOffsetInt64(vis, offset), 0));
-                                            // UI::Text(Round(Dev::GetOffsetUint64(vis, offset), 0));
+                                            // UI::Text(Round(Dev::GetOffsetInt8(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetUint8(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetInt16(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetUint16(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetInt32(vis, offset)));
+                                            UI::Text(Round(Dev::GetOffsetUint32(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetInt64(vis, offset)));
+                                            // UI::Text(Round(Dev::GetOffsetUint64(vis, offset)));
                                             // UI::Text(Round(Dev::GetOffsetFloat(vis, offset)));
-                                            // UI::Text(RoundVec3(Dev::GetOffsetVec3(vis, offset)));
+                                            // UI::Text(RoundV(Dev::GetOffsetVec3(vis, offset)));
                                         } catch {
                                             UI::Text(RED + getExceptionInfo());
                                         }
@@ -200,9 +200,9 @@ String4[] GetKnownVisValues(CMwNod@ vis) {
     ret.InsertLast(String4(1352, "float", "FLSteerAngle",             Round(Dev::GetOffsetFloat (vis, 1352))));
     uint FLGroundContactMaterial = Dev::GetOffsetUint32(vis, 1356);
     ret.InsertLast(String4(1356, "uint",  "FLGroundContactMaterial",  Round(FLGroundContactMaterial) + " \\$G" + tostring(CAudioSourceSurface::ESurfId(FLGroundContactMaterial))));
-    ret.InsertLast(String4(1360, "bool",  "FLGroundContact",          Round(Dev::GetOffsetFloat(vis, 1360) == 1)));
-    ret.InsertLast(String4(1364, "float", "FLSlipCoef",               Round(Dev::GetOffsetFloat(vis, 1364))));
-    ret.InsertLast(String4(1372, "bool",  "FLIsWet",                  Round(Dev::GetOffsetFloat(vis, 1372) == 1)));
+    ret.InsertLast(String4(1360, "bool",  "FLGroundContact",          Round(Dev::GetOffsetUint32(vis, 1360) == 1)));
+    ret.InsertLast(String4(1364, "float", "FLSlipCoef",               Round(Dev::GetOffsetFloat (vis, 1364))));
+    ret.InsertLast(String4(1372, "bool",  "FLIsWet",                  Round(Dev::GetOffsetUint32(vis, 1372) == 1)));
 
     ret.InsertLast(String4(1376, "float", "FRDamperLen",              Round(Dev::GetOffsetFloat (vis, 1376))));
     ret.InsertLast(String4(1380, "float", "FRWheelRot",               Round(Dev::GetOffsetFloat (vis, 1380))));
@@ -210,9 +210,9 @@ String4[] GetKnownVisValues(CMwNod@ vis) {
     ret.InsertLast(String4(1388, "float", "FRSteerAngle",             Round(Dev::GetOffsetFloat (vis, 1388))));
     uint FRGroundContactMaterial = Dev::GetOffsetUint32(vis, 1392);
     ret.InsertLast(String4(1392, "uint",  "FRGroundContactMaterial",  Round(FRGroundContactMaterial) + " \\$G" + tostring(CAudioSourceSurface::ESurfId(FRGroundContactMaterial))));
-    ret.InsertLast(String4(1396, "bool",  "FRGroundContact",          Round(Dev::GetOffsetFloat(vis, 1396) == 1)));
-    ret.InsertLast(String4(1400, "float", "FRSlipCoef",               Round(Dev::GetOffsetFloat(vis, 1400))));
-    ret.InsertLast(String4(1408, "bool",  "FRIsWet",                  Round(Dev::GetOffsetFloat(vis, 1408) == 1)));
+    ret.InsertLast(String4(1396, "bool",  "FRGroundContact",          Round(Dev::GetOffsetUint32(vis, 1396) == 1)));
+    ret.InsertLast(String4(1400, "float", "FRSlipCoef",               Round(Dev::GetOffsetFloat (vis, 1400))));
+    ret.InsertLast(String4(1408, "bool",  "FRIsWet",                  Round(Dev::GetOffsetUint32(vis, 1408) == 1)));
 
     ret.InsertLast(String4(1412, "float", "RRDamperLen",              Round(Dev::GetOffsetFloat (vis, 1412))));
     ret.InsertLast(String4(1416, "float", "RRWheelRot",               Round(Dev::GetOffsetFloat (vis, 1416))));
@@ -220,9 +220,9 @@ String4[] GetKnownVisValues(CMwNod@ vis) {
     ret.InsertLast(String4(1424, "float", "RRSteerAngle",             Round(Dev::GetOffsetFloat (vis, 1424))));
     uint RRGroundContactMaterial = Dev::GetOffsetUint32(vis, 1428);
     ret.InsertLast(String4(1428, "uint",  "RRGroundContactMaterial",  Round(RRGroundContactMaterial) + " \\$G" + tostring(CAudioSourceSurface::ESurfId(RRGroundContactMaterial))));
-    ret.InsertLast(String4(1432, "bool",  "RRGroundContact",          Round(Dev::GetOffsetFloat(vis, 1432) == 1)));
-    ret.InsertLast(String4(1436, "float", "RRSlipCoef",               Round(Dev::GetOffsetFloat(vis, 1436))));
-    ret.InsertLast(String4(1444, "bool",  "RRIsWet",                  Round(Dev::GetOffsetFloat(vis, 1444) == 1)));
+    ret.InsertLast(String4(1432, "bool",  "RRGroundContact",          Round(Dev::GetOffsetUint32(vis, 1432) == 1)));
+    ret.InsertLast(String4(1436, "float", "RRSlipCoef",               Round(Dev::GetOffsetFloat (vis, 1436))));
+    ret.InsertLast(String4(1444, "bool",  "RRIsWet",                  Round(Dev::GetOffsetUint32(vis, 1444) == 1)));
 
     ret.InsertLast(String4(1448, "float", "RLDamperLen",              Round(Dev::GetOffsetFloat (vis, 1448))));
     ret.InsertLast(String4(1452, "float", "RLWheelRot",               Round(Dev::GetOffsetFloat (vis, 1452))));
@@ -230,9 +230,9 @@ String4[] GetKnownVisValues(CMwNod@ vis) {
     ret.InsertLast(String4(1460, "float", "RLSteerAngle",             Round(Dev::GetOffsetFloat (vis, 1460))));
     uint RLGroundContactMaterial = Dev::GetOffsetUint32(vis, 1464);
     ret.InsertLast(String4(1464, "uint",  "RLGroundContactMaterial",  Round(RLGroundContactMaterial) + " \\$G" + tostring(CAudioSourceSurface::ESurfId(RLGroundContactMaterial))));
-    ret.InsertLast(String4(1468, "bool",  "RLGroundContact",          Round(Dev::GetOffsetFloat(vis, 1468) == 1)));
-    ret.InsertLast(String4(1472, "float", "RLSlipCoef",               Round(Dev::GetOffsetFloat(vis, 1472))));
-    ret.InsertLast(String4(1480, "bool",  "RLIsWet",                  Round(Dev::GetOffsetFloat(vis, 1480) == 1)));
+    ret.InsertLast(String4(1468, "bool",  "RLGroundContact",          Round(Dev::GetOffsetUint32(vis, 1468) == 1)));
+    ret.InsertLast(String4(1472, "float", "RLSlipCoef",               Round(Dev::GetOffsetFloat (vis, 1472))));
+    ret.InsertLast(String4(1480, "bool",  "RLIsWet",                  Round(Dev::GetOffsetUint32(vis, 1480) == 1)));
 
     ret.InsertLast(String4(1512, "float", "RPM",                      Round(Dev::GetOffsetFloat (vis, 1512), 0)));
     ret.InsertLast(String4(1524, "uint",  "CurGear",                  Round(Dev::GetOffsetUint32(vis, 1524))));
