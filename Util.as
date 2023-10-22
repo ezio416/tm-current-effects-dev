@@ -18,7 +18,7 @@ string Round(bool b) {
 }
 
 string Round(int num) {
-    return (num == 0 ? WHITE : num < 0 ? RED : GREEN) + num;
+    return (num == 0 ? WHITE : num < 0 ? RED : GREEN) + Math::Abs(num);
 }
 
 string Round(float num, uint precision = 3) {
