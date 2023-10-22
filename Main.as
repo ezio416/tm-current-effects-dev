@@ -1,6 +1,6 @@
 /*
 c 2023-05-04
-m 2023-08-02
+m 2023-10-02
 */
 
 const string BLUE   = "\\$09D";
@@ -194,6 +194,68 @@ void Render() {
                         UI::TableNextColumn(); UI::Text(kv.name);
                         UI::TableNextColumn(); UI::Text(kv.value);
                     }
+                    UI::EndTable();
+                }
+            } catch {
+                UI::Text("oopsie: " + getExceptionInfo());
+            }
+            UI::EndTabItem();
+        }
+
+        if (UI::BeginTabItem("my script")) {
+            try {
+                auto app = cast<CTrackMania@>(GetApp());
+                auto playground = cast<CSmArenaClient@>(app.CurrentPlayground);
+                if (playground is null) throw("no-playground");
+
+                auto scene = cast<ISceneVis@>(app.GameScene);
+                if (scene is null) throw("no-scene");
+
+                // CSceneVehicleVis@ vis;
+                auto player = cast<CSmPlayer@>(playground.GameTerminals[0].GUIPlayer);
+                auto script = cast<CSmScriptPlayer>(player.ScriptAPI);
+                // if (player !is null) {
+                //     @vis = VehicleState::GetVis(scene, player);
+                // } else {
+                //     @vis = VehicleState::GetSingularVis(scene);
+                // }
+                // if (vis is null) throw("no-vis");
+
+                if (UI::BeginTable("script-table", 2, UI::TableFlags::ScrollY)) {
+                    UI::TableSetupColumn("variable");
+                    UI::TableSetupColumn("value");
+                    UI::TableHeadersRow();
+
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text("HandicapNoGasDuration");
+                    UI::TableNextColumn();
+                    UI::Text(tostring(script.HandicapNoGasDuration));
+
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text("HandicapForceGasDuration");
+                    UI::TableNextColumn();
+                    UI::Text(tostring(script.HandicapForceGasDuration));
+
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text("HandicapNoBrakesDuration");
+                    UI::TableNextColumn();
+                    UI::Text(tostring(script.HandicapNoBrakesDuration));
+
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text("HandicapNoSteeringDuration");
+                    UI::TableNextColumn();
+                    UI::Text(tostring(script.HandicapNoSteeringDuration));
+
+                    UI::TableNextRow();
+                    UI::TableNextColumn();
+                    UI::Text("HandicapNoGripDuration");
+                    UI::TableNextColumn();
+                    UI::Text(tostring(script.HandicapNoGripDuration));
+
                     UI::EndTable();
                 }
             } catch {
