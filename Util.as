@@ -21,6 +21,11 @@ string Round(int num) {
     return (num == 0 ? WHITE : num < 0 ? RED : GREEN) + Math::Abs(num);
 }
 
+// overload above converts uints to ints, which we don't want
+string RoUnd(uint num) {
+    return (num == 0 ? WHITE : GREEN) + num;
+}
+
 string Round(float num, uint precision = 3) {
     return (num == 0 ? WHITE : num < 0 ? RED : GREEN) + Text::Format("%." + precision + "f", Math::Abs(num)) + "\\$G";
 }
