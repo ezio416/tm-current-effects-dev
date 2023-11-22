@@ -9,6 +9,10 @@ int visStart = 0;
 int visEnd = 10000;
 int[] knownVisOffsets = {
     0140, 0144, 0316, 0320, 0324, 0328, 0336,
+    0476, 0480, 0484, 0488,  // FL
+    0520, 0524, 0528, 0532,  // FR
+    0564, 0568, 0572, 0576,  // RR
+    0608, 0612, 0616, 0620,  // RL
     0672, 0676, 0680, 0684, 0688, 0692, 0696, 0712, 0724, 0732, 0740, 0744, 0864, 0868, 0872, 0876
 };
 
@@ -40,6 +44,8 @@ void Render2020() {
                         CSceneVehicleVis@ vis = allVis[i];
                         CPlugVehicleVisModel@ model = vis.Model;
                         // CSceneVehicleVisState@ state = vis.AsyncState;
+
+                        // print(Round(state.AirBrakeNormed) + " " + Round(state.WingsOpenNormed));
 
                         if (UI::BeginTabItem(i + "_" + model.Id.GetName())) {
                             visStart = UI::InputInt("vis offset start", visStart);
@@ -352,13 +358,13 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     if (vis is null)
         return ret;
 
-    ret.InsertLast(String4(140, "float",  "GetLinearHue",    Round(Dev::GetOffsetFloat (vis, 140))));
-    ret.InsertLast(String4(144, "float",  "GetLinearHue",    Round(Dev::GetOffsetFloat (vis, 144))));
-    ret.InsertLast(String4(316, "uint32", "TimeInMap?",      Round(Dev::GetOffsetUint32(vis, 316))));
-    ret.InsertLast(String4(320, "float",  "InputSteer",      Round(Dev::GetOffsetFloat (vis, 320))));
-    ret.InsertLast(String4(324, "float",  "InputGasPedal",   Round(Dev::GetOffsetFloat (vis, 324), 0)));
-    ret.InsertLast(String4(328, "float",  "InputBrakePedal", Round(Dev::GetOffsetFloat (vis, 328), 0)));
-    ret.InsertLast(String4(336, "int32",  "InputIsBraking",  Round(Dev::GetOffsetInt32 (vis, 336))));
+    ret.InsertLast(String4(140, "float",  "GetLinearHue",       Round(Dev::GetOffsetFloat (vis, 140))));
+    ret.InsertLast(String4(144, "float",  "GetLinearHue",       Round(Dev::GetOffsetFloat (vis, 144))));
+    ret.InsertLast(String4(316, "uint32", "TimeInMap?",         Round(Dev::GetOffsetUint32(vis, 316))));
+    ret.InsertLast(String4(320, "float",  "InputSteer",         Round(Dev::GetOffsetFloat (vis, 320))));
+    ret.InsertLast(String4(324, "float",  "InputGasPedal",      Round(Dev::GetOffsetFloat (vis, 324), 0)));
+    ret.InsertLast(String4(328, "float",  "InputBrakePedal",    Round(Dev::GetOffsetFloat (vis, 328), 0)));
+    ret.InsertLast(String4(336, "int32",  "InputIsBraking",     Round(Dev::GetOffsetInt32 (vis, 336))));
 
     // vec3 x = Dev::GetOffsetVec3(vis, 652);
     // vec3 y = Dev::GetOffsetVec3(vis, 664);
@@ -389,12 +395,12 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     // ret.InsertLast(String4(746, "int8", "ContactState2", Round(ContactState2, 0) + " " + ContactState2Name(ContactState2)));
     // ret.InsertLast(String4(747, "int8", "IsTurbo", Round(Dev::GetOffsetInt8(vis, 747), 0)));  // 0-1 for self, 4-5 for replays
 
-    // ret.InsertLast(String4(776, "float", "FLDamperLen", Round(Dev::GetOffsetFloat(vis, 776), 4)));
-    // ret.InsertLast(String4(780, "float", "FLWheelRot", Round(Dev::GetOffsetFloat(vis, 780))));
-    // ret.InsertLast(String4(784, "float", "FLWheelRotSpeed", Round(Dev::GetOffsetFloat(vis, 784), 3)));
-    // ret.InsertLast(String4(788, "float", "FLSteerAngle", Round(Dev::GetOffsetFloat(vis, 788), 3)));
-    // int FLGroundContactMaterial = Dev::GetOffsetInt8(vis, 792);
-    // ret.InsertLast(String4(792, "int8", "FLGroundContactMaterial", Round(FLGroundContactMaterial, 0) + " " + MaterialName(FLGroundContactMaterial)));
+    ret.InsertLast(String4(472, "float",  "FLDamperLen",        Round(Dev::GetOffsetFloat(vis, 472), 4)));
+    ret.InsertLast(String4(476, "float",  "FLWheelRot",         Round(Dev::GetOffsetFloat(vis, 476))));
+    ret.InsertLast(String4(480, "float",  "FLWheelRotSpeed",    Round(Dev::GetOffsetFloat(vis, 480))));
+    ret.InsertLast(String4(484, "float",  "FLSteerAngle",       Round(Dev::GetOffsetFloat(vis, 484))));
+    int FLGroundContactMaterial = Dev::GetOffsetInt8(vis, 488);
+    ret.InsertLast(String4(488, "int8", "FLGroundContactMaterial", Round(FLGroundContactMaterial, 0) + " " + MaterialName(FLGroundContactMaterial)));
     // int FLGroundContactEffect = Dev::GetOffsetInt8(vis, 793);
     // ret.InsertLast(String4(793, "int8", "FLGroundContactEffect", Round(FLGroundContactEffect, 0) + " " + EffectName(FLGroundContactEffect)));
     // ret.InsertLast(String4(796, "float", "FLSlipCoef", Round(Dev::GetOffsetFloat(vis, 796))));
@@ -405,12 +411,12 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     // int FLFalling = Dev::GetOffsetInt8(vis, 816);
     // ret.InsertLast(String4(816, "int8", "FLFalling", Round(FLFalling, 0) + " " + FallingName(FLFalling)));
 
-    // ret.InsertLast(String4(820, "float", "FRDamperLen", Round(Dev::GetOffsetFloat(vis, 820), 4)));
-    // ret.InsertLast(String4(824, "float", "FRWheelRot", Round(Dev::GetOffsetFloat(vis, 824))));
-    // ret.InsertLast(String4(828, "float", "FRWheelRotSpeed", Round(Dev::GetOffsetFloat(vis, 828), 3)));
-    // ret.InsertLast(String4(832, "float", "FRSteerAngle", Round(Dev::GetOffsetFloat(vis, 832), 3)));
-    // int FRGroundContactMaterial = Dev::GetOffsetInt8(vis, 836);
-    // ret.InsertLast(String4(836, "int8", "FRGroundContactMaterial", Round(FRGroundContactMaterial, 0) + " " + MaterialName(FRGroundContactMaterial)));
+    ret.InsertLast(String4(516, "float",  "FRDamperLen",        Round(Dev::GetOffsetFloat(vis, 516), 4)));
+    ret.InsertLast(String4(520, "float",  "FRWheelRot",         Round(Dev::GetOffsetFloat(vis, 520))));
+    ret.InsertLast(String4(524, "float",  "FRWheelRotSpeed",    Round(Dev::GetOffsetFloat(vis, 524))));
+    ret.InsertLast(String4(528, "float",  "FRSteerAngle",       Round(Dev::GetOffsetFloat(vis, 528))));
+    int FRGroundContactMaterial = Dev::GetOffsetInt8(vis, 532);
+    ret.InsertLast(String4(532, "int8", "FRGroundContactMaterial", Round(FRGroundContactMaterial, 0) + " " + MaterialName(FRGroundContactMaterial)));
     // int FRGroundContactEffect = Dev::GetOffsetInt8(vis, 837);
     // ret.InsertLast(String4(837, "int8", "FRGroundContactEffect", Round(FRGroundContactEffect, 0) + " " + EffectName(FRGroundContactEffect)));
     // ret.InsertLast(String4(840, "float", "FRSlipCoef", Round(Dev::GetOffsetFloat(vis, 840))));
@@ -421,12 +427,12 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     // int FRFalling = Dev::GetOffsetInt8(vis, 860);
     // ret.InsertLast(String4(860, "int8", "FRFalling", Round(FRFalling, 0) + " " + FallingName(FRFalling)));
 
-    // ret.InsertLast(String4(864, "float", "RRDamperLen", Round(Dev::GetOffsetFloat(vis, 864), 4)));
-    // ret.InsertLast(String4(868, "float", "RRWheelRot", Round(Dev::GetOffsetFloat(vis, 868))));
-    // ret.InsertLast(String4(872, "float", "RRWheelRotSpeed", Round(Dev::GetOffsetFloat(vis, 872), 3)));
-    // ret.InsertLast(String4(876, "float", "RRSteerAngle", Round(Dev::GetOffsetFloat(vis, 876), 3)));
-    // int RRGroundContactMaterial = Dev::GetOffsetInt8(vis, 880);
-    // ret.InsertLast(String4(880, "int8", "RRGroundContactMaterial", Round(RRGroundContactMaterial, 0) + " " + MaterialName(RRGroundContactMaterial)));
+    ret.InsertLast(String4(560, "float",  "RRDamperLen",        Round(Dev::GetOffsetFloat(vis, 560), 4)));
+    ret.InsertLast(String4(564, "float",  "RRWheelRot",         Round(Dev::GetOffsetFloat(vis, 564))));
+    ret.InsertLast(String4(568, "float",  "RRWheelRotSpeed",    Round(Dev::GetOffsetFloat(vis, 568))));
+    ret.InsertLast(String4(572, "float",  "RRSteerAngle",       Round(Dev::GetOffsetFloat(vis, 572))));
+    int RRGroundContactMaterial = Dev::GetOffsetInt8(vis, 576);
+    ret.InsertLast(String4(576, "int8", "RRGroundContactMaterial", Round(RRGroundContactMaterial, 0) + " " + MaterialName(RRGroundContactMaterial)));
     // int RRGroundContactEffect = Dev::GetOffsetInt8(vis, 881);
     // ret.InsertLast(String4(881, "int8", "RRGroundContactEffect", Round(RRGroundContactEffect, 0) + " " + EffectName(RRGroundContactEffect)));
     // ret.InsertLast(String4(884, "float", "RRSlipCoef", Round(Dev::GetOffsetFloat(vis, 884))));
@@ -437,12 +443,12 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     // int RRFalling = Dev::GetOffsetInt8(vis, 904);
     // ret.InsertLast(String4(904, "int8", "RRFalling", Round(RRFalling, 0) + " " + FallingName(RRFalling)));
 
-    // ret.InsertLast(String4(908, "float", "RLDamperLen", Round(Dev::GetOffsetFloat(vis, 908), 4)));
-    // ret.InsertLast(String4(912, "float", "RLWheelRot", Round(Dev::GetOffsetFloat(vis, 912))));
-    // ret.InsertLast(String4(916, "float", "RLWheelRotSpeed", Round(Dev::GetOffsetFloat(vis, 916), 3)));
-    // ret.InsertLast(String4(920, "float", "RLSteerAngle", Round(Dev::GetOffsetFloat(vis, 920), 3)));
-    // int RLGroundContactMaterial = Dev::GetOffsetInt8(vis, 924);
-    // ret.InsertLast(String4(924, "int8", "RLGroundContactMaterial", Round(RLGroundContactMaterial, 0) + " " + MaterialName(RLGroundContactMaterial)));
+    ret.InsertLast(String4(604, "float",  "RLDamperLen",        Round(Dev::GetOffsetFloat(vis, 604), 4)));
+    ret.InsertLast(String4(608, "float",  "RLWheelRot",         Round(Dev::GetOffsetFloat(vis, 608))));
+    ret.InsertLast(String4(612, "float",  "RLWheelRotSpeed",    Round(Dev::GetOffsetFloat(vis, 612))));
+    ret.InsertLast(String4(616, "float",  "RLSteerAngle",       Round(Dev::GetOffsetFloat(vis, 616))));
+    int RLGroundContactMaterial = Dev::GetOffsetInt8(vis, 620);
+    ret.InsertLast(String4(620, "int8", "RLGroundContactMaterial", Round(RLGroundContactMaterial, 0) + " " + MaterialName(RLGroundContactMaterial)));
     // int RLGroundContactEffect = Dev::GetOffsetInt8(vis, 925);
     // ret.InsertLast(String4(925, "int8", "RLGroundContactEffect", Round(RLGroundContactEffect, 0) + " " + EffectName(RLGroundContactEffect)));
     // ret.InsertLast(String4(928, "float", "RLSlipCoef", Round(Dev::GetOffsetFloat(vis, 928))));
@@ -477,8 +483,8 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     // ret.InsertLast(String4(1144, "float", "GroundDist", Round(Dev::GetOffsetFloat(vis, 1144))));
     ret.InsertLast(String4(864, "float",  "SimulationTimeCoef", Round(Dev::GetOffsetFloat(vis, 864))));
     ret.InsertLast(String4(868, "float",  "BulletTimeNormed",   Round(Dev::GetOffsetFloat(vis, 868))));
-    // ret.InsertLast(String4(1176, "float", "AirBrakeNormed", Round(Dev::GetOffsetFloat(vis, 1176))));
-    ret.InsertLast(String4(872, "float",  "WingsOpenNormed",    Round(Dev::GetOffsetFloat(vis, 872))));
+    // ret.InsertLast(String4(1176, "float", "AirBrakeNormed", Round(Dev::GetOffsetFloat(vis, 1176))));  // where did this go?
+    ret.InsertLast(String4(872, "float",  "WingsOpenNormed",    Round(Dev::GetOffsetFloat(vis, 872))));  // in API as AirBrakeNormed
     ret.InsertLast(String4(876, "float",  "SpoilerOpenNormed",  Round(Dev::GetOffsetFloat(vis, 876))));
     // float WaterImmersionCoef = Dev::GetOffsetFloat(vis, 1396);
     // if (WaterImmersionCoef < 0) WaterImmersionCoef = 0;
