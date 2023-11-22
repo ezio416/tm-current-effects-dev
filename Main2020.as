@@ -73,7 +73,7 @@ void Render2020() {
 
                                         UI::TableNextRow();
                                         UI::TableNextColumn();
-                                        UI::Text((knownVisOffsets.Find(offset) > -1 ? "" : (observedVisOffsets.Find(offset) > -1) ? YELLOW : "") + offset);
+                                        UI::Text((knownVisOffsets.Find(offset) > -1 ? "" : (observedVisOffsets.Find(offset) > -1) ? YELLOW : RED) + offset);
 
                                         UI::TableNextColumn();
                                         try {
