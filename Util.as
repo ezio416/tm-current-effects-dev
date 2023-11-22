@@ -1,6 +1,6 @@
 /*
 c 2023-10-22
-m 2023-10-22
+m 2023-11-21
 */
 
 const string BLUE   = "\\$09D";
@@ -59,4 +59,17 @@ class String4 {
         name   = n;
         value  = v;
     }
+}
+
+enum DataType {
+    Int8,
+    Uint8,
+    Int16,
+    Uint16,
+    Int32,
+    Uint32,
+    Int64,
+    Uint64,
+    Float,
+    Vec3
 }
