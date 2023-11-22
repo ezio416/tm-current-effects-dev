@@ -17,7 +17,7 @@ void RenderMenu() {
         windowOpen = !windowOpen;
 }
 
-void Render() {
+void RenderInterface() {
     if (!windowOpen) return;
 
 #if TMNEXT
