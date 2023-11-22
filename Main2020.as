@@ -15,7 +15,10 @@ int[] knownVisOffsets = {
     604, 608, 612, 616, 620, 621, 624, 628, 632, 636, 640, 644,  // RL
     672, 676, 680, 684, 688, 692, 696, 700, 704, 708, 712, 724, 732, 740, 744, 840, 864, 868, 872, 876, 1084, 1092, 1096, 1112, 1168, 1172,
     1176, 1180, 1184, 1188, 1192, 1196, 1200, 1204, 1208, 1212, 1216, 1220, 1224, 1228, 1240, 1244, 1248, 1252, 1256, 1260, 1264, 1268, 1272,
-    1448, 1452, 1508, 1512, 1520, 1532
+    1400, 1404, 1448, 1452, 1508, 1512, 1520, 1532
+};
+int[] observedVisOffsets = {
+    1116, 1120, 1408, 1412, 1416, 1420, 1432, 1436, 1440, 1444
 };
 
 int playerStart = 0;
@@ -70,7 +73,7 @@ void Render2020() {
 
                                         UI::TableNextRow();
                                         UI::TableNextColumn();
-                                        UI::Text((knownVisOffsets.Find(offset) == -1 ? RED : "") + offset);
+                                        UI::Text((knownVisOffsets.Find(offset) > -1 ? "" : (observedVisOffsets.Find(offset) > -1) ? YELLOW : "") + offset);
 
                                         UI::TableNextColumn();
                                         try {
@@ -503,6 +506,9 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(1100, "vec3",  "WaterOverSurfacePos", Round(Dev::GetOffsetVec3  (vis, 1100))));
     ret.InsertLast(String4(1112, "float", "WetnessValue01",      Round(Dev::GetOffsetFloat (vis, 1112))));
 
+    // 1116 some absolute value of speed
+    // 1120 impact
+
     x = Dev::GetOffsetVec3(vis, 1168);
     y = Dev::GetOffsetVec3(vis, 1180);
     z = Dev::GetOffsetVec3(vis, 1192);
@@ -531,6 +537,12 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(1264, "float", "RRSlipCoef",          Round(Dev::GetOffsetFloat (vis, 1264))));
     ret.InsertLast(String4(1268, "float", "RLSlipCoef",          Round(Dev::GetOffsetFloat (vis, 1268))));
     ret.InsertLast(String4(1272, "float", "InputGasPedal",       Round(Dev::GetOffsetFloat (vis, 1272), 0)));
+    ret.InsertLast(String4(1400, "float", "InputIsBraking",      Round(Dev::GetOffsetInt32 (vis, 1400), 0)));
+    ret.InsertLast(String4(1404, "float", "BrakingCoef?",        Round(Dev::GetOffsetInt32 (vis, 1404), 6)));
+
+    // 1408-1420 something with reactors
+    // 1432-1444 something with turbos
+
     ret.InsertLast(String4(1448, "float", "InputIsBraking",      Round(Dev::GetOffsetInt32 (vis, 1448), 0)));
     ret.InsertLast(String4(1452, "float", "BrakingCoef?",        Round(Dev::GetOffsetInt32 (vis, 1452), 6)));
     ret.InsertLast(String4(1508, "float", "WingsOpening?",       Round(Dev::GetOffsetFloat (vis, 1508), 0)));
@@ -538,12 +550,6 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(1516, "float", "SpoilerOpening?",     Round(Dev::GetOffsetFloat (vis, 1516), 0)));
     ret.InsertLast(String4(1520, "float", "SpoilerOpenNormed",   Round(Dev::GetOffsetFloat (vis, 1520))));
     ret.InsertLast(String4(1532, "float", "TimeMovingForward?",  Round(Dev::GetOffsetInt32 (vis, 1532))));
-
-    // 121 start accelerating?
-    // 409 race time?
-    // 617 race time?
-    // 1562 wheels burning?
-    // 1690,1738 is braking?
 
     return ret;
 }
