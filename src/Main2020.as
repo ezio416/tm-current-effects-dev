@@ -1,14 +1,12 @@
-/*
-c 2023-10-22
-m 2023-11-22
-*/
+// c 2023-10-22
+// m 2023-01-05
 
 #if TMNEXT
 
 int visStart = 0;
 int visEnd = 10000;
 int[] knownVisOffsets = {
-    140, 144, 316, 320, 324, 328, 336, 348, 352, 356, 360, 364, 368, 372, 376, 380, 384, 388, 392, 396, 400, 404, 420, 424, 440, 442, 443,
+    140, 144, 316, 320, 324, 328, 336, 348, 352, 356, 360, 364, 368, 372, 376, 380, 384, 388, 392, 396, 400, 404, 420, 424, 432, 440, 442, 443,
     472, 476, 480, 484, 488, 489, 492, 496, 500, 504, 508, 512,  // FL
     516, 520, 524, 528, 532, 533, 536, 540, 544, 548, 552, 556,  // FR
     560, 564, 568, 572, 576, 577, 580, 584, 588, 592, 596, 600,  // RR
@@ -301,9 +299,9 @@ void Render2020() {
                                 // UI::Text(Round(Dev::GetOffsetInt16(player, offset), 0));
                                 // UI::Text(Round(Dev::GetOffsetUint16(player, offset), 0));
 
-                                // UI::Text(Round(Dev::GetOffsetInt32(player, offset), 0));
+                                UI::Text(Round(Dev::GetOffsetInt32(player, offset), 0));
                                 // UI::Text(Round(Dev::GetOffsetUint32(player, offset), 0));
-                                UI::Text(Round(Dev::GetOffsetFloat(player, offset)));
+                                // UI::Text(Round(Dev::GetOffsetFloat(player, offset)));
 
                                 // UI::Text(Round(Dev::GetOffsetInt64(player, offset), 0));
                                 // UI::Text(Round(Dev::GetOffsetUint64(player, offset), 0));
@@ -394,6 +392,7 @@ String4[] GetKnownVisValues(CSceneVehicleVis@ vis) {
     ret.InsertLast(String4(396, "vec3",   "WorldVel",          Round(Dev::GetOffsetVec3  (vis, 396))));
     ret.InsertLast(String4(420, "float",  "FrontSpeed",        Round(Dev::GetOffsetFloat (vis, 420))));
     ret.InsertLast(String4(424, "float",  "SideSpeed",         Round(Dev::GetOffsetFloat (vis, 424))));
+    ret.InsertLast(String4(432, "int32",  "CruiseSpeed",       Round(Dev::GetOffsetInt32 (vis, 432))));
     int ContactState1 = Dev::GetOffsetInt8(vis, 440);
     ret.InsertLast(String4(440, "int8", "ContactState1", Round(ContactState1, 0) + " " + ContactState1Name(ContactState1)));
     int ContactState2 = Dev::GetOffsetInt8(vis, 442);
