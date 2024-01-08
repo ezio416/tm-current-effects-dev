@@ -1,7 +1,5 @@
-/*
-c 2023-05-04
-m 2023-11-23
-*/
+// c 2023-05-04
+// m 2023-11-23
 
 int offsetSkip = 4;
 string title = Icons::Bug + " Current Effects (dev)";
